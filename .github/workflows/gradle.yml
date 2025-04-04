@@ -27,4 +27,4 @@ jobs:
       # Upload file using AzCopy
       - name: Upload file using AzCopy${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}}
         run: |
-          az storage azcopy blob upload  -s "hello.txt" --destination "drivers/Chrome/beta/hello.txt"  -c windows --connection-string ${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}}   --overwrite true
+          az storage azcopy blob upload  -s "hello.txt" --destination "drivers/Chrome/beta/hello.txt"  -c windows --connection-string ${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}}  --recursive
