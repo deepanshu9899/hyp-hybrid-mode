@@ -23,11 +23,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Upload file using AzCopy
-      - name: Upload File to Azure Blob
-        env:
-          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+      - name: Upload file using AzCopy
         run: |
-          azcopy copy \
-            "/Users/deepanshuc/hello.txt" \
-            "https://hypmsftprod1faf987b.blob.core.windows.net/drivers/Chrome/beta/hello.txt?${AZURE_STORAGE_CONNECTION_STRING}" \
-            --overwrite=true
+          # Adjust the source path if the file is not in the repo root
+          az storage azcopy blob upload \
+            -s "hello.txt" \  # Path to your file in the workflow's context
+            --destination "drivers/Chrome/beta/hello.txt" \
+            -c "windows" \  # Container name
+            --connection-string ${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}}
