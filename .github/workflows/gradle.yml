@@ -31,7 +31,7 @@ jobs:
             --file hello.txt \
             --container-name windows \
             --name drivers/Chrome/beta/hello.txt \
-            --connection-string ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}
-            --overwrite 
+            --connection-string ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} \
+            --overwrite true
 
       
