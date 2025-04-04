@@ -1,27 +1,33 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-
-name: Java CI with Gradle
+name: Upload Generated File to Azure Blob
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch
+
 
 jobs:
-
-  dependency-submission:
-
+  upload-to-blob:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-    - name: Decode secret
-      run: |
-       echo "${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}" | base64 
+      # Install AzCopy
+      - name: Install AzCopy
+        run: |
+          wget https://aka.ms/downloadazcopy-v10-linux
+          tar -xzf downloadazcopy-v10-linux
+          sudo cp azcopy_linux_amd64_*/azcopy /usr/local/bin/
+          azcopy --version
+
+      # Azure login (if needed for other steps)
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Upload file using AzCopy
+      - name: Upload File to Azure Blob
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        run: |
+          azcopy copy \
+            "/Users/deepanshuc/hello.txt" \
+            "https://hypmsftprod1faf987b.blob.core.windows.net/drivers/Chrome/beta/hello.txt?${AZURE_STORAGE_CONNECTION_STRING}" \
+            --overwrite=true
