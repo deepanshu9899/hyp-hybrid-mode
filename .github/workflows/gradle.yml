@@ -30,4 +30,4 @@ jobs:
           az config set extension.dynamic_install=yes_without_prompt
           az config set extension.dynamic_install_allow_preview=true
           az extension add --name storage-preview
-          az storage azcopy blob upload  -s "/Users/deepanshuc/hello.txt" --destination "drivers/Chrome/beta/hello.txt"  -c windows --connection-string ${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}}  --recursive
+          az storage azcopy blob upload --source hello.txt --destination "drivers/Chrome/beta/hello.txt" --container windows --connection-string "${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}" --recursive
