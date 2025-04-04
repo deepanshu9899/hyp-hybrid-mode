@@ -16,11 +16,8 @@ jobs:
           sudo cp azcopy_linux_amd64_*/azcopy /usr/local/bin/
           azcopy --version
 
-      # Azure login (if needed for other steps)
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Generate hello.txt
+        run: echo "Hello from GitHub Actions!" > hello.txt
 
       # Upload file using AzCopy
       - name: Upload file using AzCopy
