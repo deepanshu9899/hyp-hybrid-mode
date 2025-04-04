@@ -9,22 +9,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Install AzCopy
-      - name: Install AzCopy
+      - name: Check and Install AzCopy
         run: |
-          wget https://aka.ms/downloadazcopy-v10-linux
-          tar -xzf downloadazcopy-v10-linux
-          sudo cp azcopy_linux_amd64_*/azcopy /usr/local/bin/
-          azcopy --version
+          if ! command -v azcopy &> /dev/null
+          then
+            wget https://aka.ms/downloadazcopy-v10-linux
+            tar -xvf downloadazcopy-v10-linux
+            sudo cp ./azcopy_linux_amd64_*/azcopy /usr/bin/
+            rm -rf azcopy_linux_amd64_*
+          else
+            echo "AzCopy is already installed."
+          fi
 
       - name: Generate hello.txt
         run: echo "Hello from GitHub Actions!" > hello.txt
 
       # Upload file using AzCopy
-      - name: Upload file using AzCopy
+      - name: Upload file using AzCopy${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}}
         run: |
-          # Adjust the source path if the file is not in the repo root
-          az storage azcopy blob upload \
-            -s "hello.txt" \  # Path to your file in the workflow's context
-            --destination "drivers/Chrome/beta/hello.txt" \
-            -c "windows" \  # Container name
-            --connection-string ${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}}
+          az storage azcopy blob upload  -s "hello.txt" --destination "drivers/Chrome/beta/hello.txt"  -c windows --connection-string ${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}}   --recursive
