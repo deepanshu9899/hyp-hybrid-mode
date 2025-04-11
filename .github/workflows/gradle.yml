@@ -27,11 +27,10 @@ jobs:
       # Upload file using AzCopy
       - name: Upload file using Azure CLI (fallback)
         run: |
-          az storage blob upload \
-            --file hello.txt \
-            --container-name windows \
-            --name drivers/Chrome/beta/hello.txt \
-            --connection-string ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} \
-            --overwrite true
-
+          az storage azcopy blob upload \
+          -s "/Users/deepanshuc/hello.txt" \
+          --destination "drivers/Chrome/beta/hello.txt" \
+          -c windows \
+          --connection-string  ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} \
+          --recursive
       
