@@ -28,6 +28,7 @@ jobs:
       - name: Upload file using Azure CLI (fallback)
         run: |
           az storage azcopy blob upload \
+          --from-to=LocalBlob \
           -s "/Users/deepanshuc/hello.txt" \
           --destination "drivers/Chrome/beta/hello.txt" \
           -c windows \
