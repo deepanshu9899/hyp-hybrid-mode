@@ -28,10 +28,9 @@ jobs:
       - name: Upload file using Azure CLI (fallback)
         run: |
           az storage azcopy blob upload \
-          --from-to=LocalBlob \
-          -s "/Users/deepanshuc/hello.txt" \
-          --destination "drivers/Chrome/beta/hello.txt" \
-          -c windows \
-          --connection-string  ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} \
-          --recursive
+            -s "hello.txt" \
+            --destination "drivers/Chrome/beta/hello.txt" \
+            -c windows \
+            --connection-string "${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}" \
+            --recursive=false
       
