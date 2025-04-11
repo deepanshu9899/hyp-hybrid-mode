@@ -31,6 +31,6 @@ jobs:
             -s "hello.txt" \
             --destination "drivers/Chrome/beta/hello.txt" \
             -c windows \
-            --connection-string "${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}" \
+            --connection-string ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} \
             --recursive=false
       
