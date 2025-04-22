@@ -1,39 +1,31 @@
-name: Upload Generated File to Azure Blob
+name: Upload Generated File to Azure Blob (Windows)
 
 on:
   workflow_dispatch
-
 
 jobs:
   upload-to-blob:
     runs-on: windows-latest
     steps:
-      # Install AzCopy
-      - name: Check and Install AzCopy
-        run: |
-          if ! command -v azcopy &> /dev/null
-          then
-            wget https://aka.ms/downloadazcopy-v10-linux
-            tar -xvf downloadazcopy-v10-linux
-            sudo cp ./azcopy_linux_amd64_*/azcopy /usr/bin/
-            rm -rf azcopy_linux_amd64_*
-          else
-            echo "AzCopy is already installed."
-          fi
-
       - name: Generate hello.txt
+        shell: powershell
         run: |
-         echo Hello from GitHub Actions! > hello.txt
+          "Hello from GitHub Actions!" | Out-File -Encoding utf8 hello.txt
 
-
-      # Upload file using AzCopy
-      - name: Upload file using Azure CLI (fallback)
-        shell: cmd
+      - name: Upload file using AzCopy via Azure CLI (PowerShell)
+        shell: powershell
         run: |
-          az storage azcopy blob upload \
-            -s "hello.txt" \
-            --destination "drivers/Chrome/beta/hello.txt" \
-            -c windows \
-            --connection-string '${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}' \
+          Write-Host "Uploading to Azure Blob..."
+          az storage azcopy blob upload `
+            -s "hello.txt" `
+            --destination "drivers/Chrome/beta/hello.txt" `
+            -c windows `
+            --connection-string "${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}" `
             --recursive
-      
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Upload failed"
+            exit 1
+          } else {
+            Write-Host "Upload succeeded"
+          }
