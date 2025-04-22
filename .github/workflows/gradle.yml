@@ -6,7 +6,7 @@ on:
 
 jobs:
   upload-to-blob:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       # Install AzCopy
       - name: Check and Install AzCopy
@@ -22,15 +22,18 @@ jobs:
           fi
 
       - name: Generate hello.txt
-        run: echo "Hello from GitHub Actions!" > hello.txt
+        run: |
+         echo Hello from GitHub Actions! > hello.txt
+
 
       # Upload file using AzCopy
       - name: Upload file using Azure CLI (fallback)
+        shell: cmd
         run: |
           az storage azcopy blob upload \
             -s "hello.txt" \
             --destination "drivers/Chrome/beta/hello.txt" \
             -c windows \
-            --connection-string ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} \
+            --connection-string '${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}' \
             --recursive
       
