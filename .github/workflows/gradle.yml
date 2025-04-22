@@ -1,4 +1,4 @@
-name: Upload Generated File to Azure Blob (Windows)
+name: Upload Generated File to Azure Blob (Windows PowerShell)
 
 on:
   workflow_dispatch
@@ -6,16 +6,29 @@ on:
 jobs:
   upload-to-blob:
     runs-on: windows-latest
+
     steps:
+      - name: Download and install AzCopy
+        shell: powershell
+        run: |
+          Write-Host "Downloading AzCopy..."
+          Invoke-WebRequest -Uri "https://aka.ms/downloadazcopy-v10-windows" -OutFile "azcopy.zip"
+          Expand-Archive -Path "azcopy.zip" -DestinationPath "$env:TEMP\azcopy" -Force
+          $azCopyPath = Get-ChildItem -Path "$env:TEMP\azcopy" -Recurse -Filter "azcopy.exe" | Select-Object -First 1
+          $env:PATH += ";$($azCopyPath.DirectoryName)"
+          Write-Host "AzCopy installed at: $($azCopyPath.FullName)"
+          azcopy --version
+
       - name: Generate hello.txt
         shell: powershell
         run: |
-          "Hello from GitHub Actions!" | Out-File -Encoding utf8 hello.txt
+          "Hello from GitHub Actions!" | Out-File -FilePath "hello.txt" -Encoding UTF8
 
-      - name: Upload file using AzCopy via Azure CLI (PowerShell)
+      - name: Upload file using Azure CLI via PowerShell
         shell: powershell
         run: |
-          Write-Host "Uploading to Azure Blob..."
+          Write-Host "Uploading hello.txt to Azure Blob..."
+
           az storage azcopy blob upload `
             -s "hello.txt" `
             --destination "drivers/Chrome/beta/hello.txt" `
