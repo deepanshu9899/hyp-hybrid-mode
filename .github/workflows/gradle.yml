@@ -28,7 +28,7 @@ jobs:
         shell: powershell
         run: |
           Write-Host "Uploading hello.txt to Azure Blob..."
-          $escapedConnectionString = "${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}".Replace('"', '\"')
+          $connectionString = [System.Web.HttpUtility]::UrlEncode("${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}")
 
           az storage azcopy blob upload `
             -s "hello.txt" `
