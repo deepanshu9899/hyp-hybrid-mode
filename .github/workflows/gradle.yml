@@ -28,12 +28,12 @@ jobs:
         shell: powershell
         run: |
           Write-Host "Uploading hello.txt to Azure Blob..."
-          $escapedString = $connectionString -replace '([;&=])', '`$1'
+          
           az storage azcopy blob upload `
             -s "hello.txt" `
             --destination "drivers/Chrome/beta/hello.txt" `
             -c windows `
-            --connection-string "$escapedString" `
+            --connection-string ${{secrets.PROD_HYP_MSFT_CONNECTION_STRING}} `
             --recursive
 
           if ($LASTEXITCODE -ne 0) {
