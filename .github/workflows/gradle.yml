@@ -1,19 +1,18 @@
-name: Upload Generated File to Azure Blob (macOS)
+name: Upload Generated File to Azure Blob (Linux)
 
 on:
   workflow_dispatch
 
 jobs:
   upload-to-blob:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Install Azure CLI
         run: |
-          brew update
-          brew install azure-cli
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      - name: Login to Azure (skip if using connection string)
+      - name: Check Azure CLI version
         run: az version
 
       - name: Generate hello.txt
