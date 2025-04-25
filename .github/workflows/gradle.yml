@@ -28,19 +28,12 @@ jobs:
         shell: powershell
         run: |
           Write-Host "Uploading hello.txt to Azure Blob..."
-          $connectionString = "${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }}"
-          if (-not $connectionString) {
-            throw "Azure connection string is missing or invalid."
-          }
-
           # Escape the connection string by wrapping it in double quotes
-          $escapedConnectionString = "`"$connectionString`""
-          
           az storage azcopy blob upload `
             -s "hello.txt" `
             --destination "drivers/Chrome/beta/hello.txt" `
             -c windows `
-            --connection-string $escapedConnectionString `
+            --connection-string  ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} `
             --recursive
 
           if ($LASTEXITCODE -ne 0) {
