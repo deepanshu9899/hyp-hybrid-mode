@@ -1,44 +1,38 @@
-name: Upload Generated File to Azure Blob (Windows PowerShell)
+name: Upload Generated File to Azure Blob (macOS)
 
 on:
   workflow_dispatch
 
 jobs:
   upload-to-blob:
-    runs-on: windows-latest
+    runs-on: macos-latest
 
     steps:
-      - name: Download and install AzCopy
-        shell: powershell
+      - name: Install Azure CLI
         run: |
-          Write-Host "Downloading AzCopy..."
-          Invoke-WebRequest -Uri "https://aka.ms/downloadazcopy-v10-windows" -OutFile "azcopy.zip"
-          Expand-Archive -Path "azcopy.zip" -DestinationPath "$env:TEMP\azcopy" -Force
-          $azCopyPath = Get-ChildItem -Path "$env:TEMP\azcopy" -Recurse -Filter "azcopy.exe" | Select-Object -First 1
-          $env:PATH += ";$($azCopyPath.DirectoryName)"
-          Write-Host "AzCopy installed at: $($azCopyPath.FullName)"
-          azcopy --version
+          brew update
+          brew install azure-cli
+
+      - name: Login to Azure (skip if using connection string)
+        run: az version
 
       - name: Generate hello.txt
-        shell: powershell
         run: |
-          "Hello from GitHub Actions!" | Out-File -FilePath "hello.txt" -Encoding UTF8
+          echo "Hello from GitHub Actions!" > hello.txt
 
-      - name: Upload file using Azure CLI via PowerShell
-        shell: powershell
+      - name: Upload file using Azure CLI azcopy
         run: |
-          Write-Host "Uploading hello.txt to Azure Blob..."
-          # Escape the connection string by wrapping it in double quotes
-          az storage azcopy blob upload `
-            -s "hello.txt" `
-            --destination "drivers/Chrome/beta/hello.txt" `
-            -c windows `
-            --connection-string  ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} `
+          echo "Uploading hello.txt to Azure Blob..."
+          az storage azcopy blob upload \
+            -s hello.txt \
+            --destination "drivers/Chrome/beta/hello.txt" \
+            -c windows \
+            --connection-string ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} \
             --recursive
 
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Upload failed"
+          if [[ $? -ne 0 ]]; then
+            echo "Upload failed"
             exit 1
-          } else {
-            Write-Host "Upload succeeded"
-          }
+          else
+            echo "Upload succeeded"
+          fi
