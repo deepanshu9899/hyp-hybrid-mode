@@ -1,37 +1,41 @@
-name: Upload Generated File to Azure Blob (Linux)
+name: Upload Generated File to Azure Blob (Windows PowerShell)
 
 on:
   workflow_dispatch
 
 jobs:
   upload-to-blob:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-      - name: Install Azure CLI
+      - name: Download and install AzCopy
+        shell: powershell
         run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-      - name: Check Azure CLI version
-        run: az version
-
+          Write-Host "Downloading AzCopy..."
+          Invoke-WebRequest -Uri "https://aka.ms/downloadazcopy-v10-windows" -OutFile "azcopy.zip"
+          Expand-Archive -Path "azcopy.zip" -DestinationPath "$env:TEMP\azcopy" -Force
+          $azCopyPath = Get-ChildItem -Path "$env:TEMP\azcopy" -Recurse -Filter "azcopy.exe" | Select-Object -First 1
+          $env:PATH += ";$($azCopyPath.DirectoryName)"
+          Write-Host "AzCopy installed at: $($azCopyPath.FullName)"
+          azcopy --version
       - name: Generate hello.txt
+        shell: powershell
         run: |
-          echo "Hello from GitHub Actions!" > hello.txt
-
-      - name: Upload file using Azure CLI azcopy
+          "Hello from GitHub Actions!" | Out-File -FilePath "hello.txt" -Encoding UTF8
+      - name: Upload file using Azure CLI via PowerShell
+        shell: powershell
         run: |
-          echo "Uploading hello.txt to Azure Blob..."
-          az storage azcopy blob upload \
-            -s hello.txt \
-            --destination "drivers/Chrome/beta/hello.txt" \
-            -c windows \
-            --connection-string ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} \
+          Write-Host "Uploading hello.txt to Azure Blob..."
+          # Escape the connection string by wrapping it in double quotes
+          az storage azcopy blob upload `
+            -s "hello.txt" `
+            --destination "drivers/Chrome/beta/hello.txt" `
+            -c windows `
+            --connection-string  ${{ secrets.PROD_HYP_MSFT_CONNECTION_STRING }} `
             --recursive
-
-          if [[ $? -ne 0 ]]; then
-            echo "Upload failed"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Upload failed"
             exit 1
-          else
-            echo "Upload succeeded"
-          fi
+          } else {
+            Write-Host "Upload succeeded"
+          }
